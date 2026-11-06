@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build WebAssembly Seed Finder
 
 on:
   push:
@@ -6,27 +6,19 @@ on:
   workflow_dispatch:
 
 jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Set up JDK 17
-          uses: actions/setup-java@v4
-          with:
-            distribution: 'temurin'
-            java-version: '17'
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: wasm32-unknown-unknown
 
-        - name: Make gradlew executable
-          run: chmod +x gradlew
-
-        - name: Build release APK
-          run: ./gradlew assembleRelease
-
-        - name: Upload APK artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: compiled-apk
-            path: '**/build/outputs/apk/release/*.apk'
-            
+      - name: Build project
+        run: cargo build --release --target wasm32-unknown-unknown
+        
